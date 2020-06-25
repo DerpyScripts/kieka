@@ -49,7 +49,7 @@
 						<div class="pointer-events-auto rounded-lg mb-2 md:mb-3 lg:mb-5 shadow-xl" :class="{ 'bg-pink-200': selectedRoute.id == 0, 'bg-purple-200': selectedRoute.id > 0 }">
 							<div class="rounded-lg bg-white p-2 md:p-4">
 								<div>
-									<a @click="selectedRoute = null" @keypress.enter="selectedRoute = null" tabindex="0" class="inline-block cursor-pointer text-lg text-gray-700 font-bold">
+									<a @click="selectedRouteKey = null" @keypress.enter="selectedRouteKey = null" tabindex="0" class="inline-block cursor-pointer text-lg text-gray-700 font-bold">
 										<svg class="inline-block mr-1" style="margin-top: -4px;" xmlns="http://www.w3.org/2000/svg" width="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
 										Back
 									</a>
@@ -71,7 +71,7 @@
 									</div>
 								</div>
 								
-								<div class="mt-2 md:mt-4 text-base font-bold text-gray-700">
+								<div class="mt-1 md:mt-2 text-base font-bold text-gray-700">
 									{{ selectedRoute.frequency }}
 								</div>
 							</div>
@@ -85,11 +85,18 @@
 						</div>
 						
 						<div class="pointer-events-auto rounded-lg bg-white p-2 md:p-4 mb-2 md:mb-3 lg:mb-5 shadow-xl">
-							<div v-for="(leg, key) in selectedRoute.legs" :key="key" :class="{ 'mb-2': key < selectedRoute.legs.length - 1 }">
+							<div v-for="(leg, key) in selectedRoute.legs" :key="key">
 								<div v-if="leg.mode == 'walking'" class="flex">
 									<svg class="block text-gray-700 mr-3" fill="currentColor" width="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 458.667 458.667"><path d="M250.667 85.333c23.467 0 42.667-19.2 42.667-42.667C293.333 19.2 274.133 0 250.667 0S208 19.2 208 42.667s19.2 42.666 42.667 42.666zM368 245.333v-42.667c-39.467 0-73.6-21.333-92.8-52.267l-20.267-34.133C247.467 103.467 233.6 96 218.667 96c-5.333 0-10.667 1.067-16 3.2l-112 45.867v100.267h42.667v-71.467l37.333-16L112 458.667h44.8L194.133 288 240 330.667v128h42.667V297.6l-43.733-43.733 12.8-64C279.467 224 321.067 245.333 368 245.333z"/></svg>
-									<span class="flex-grow font-semibold text-gray-700 text-base">Walk to {{ leg.arriveAt }}</span>
-									<span class="font-normal text-gray-600 text-base">{{ leg.duration + " min" + (leg.duration == 1 ? "" : "s") }}</span>
+									<div class="flex-grow flex flex-col">
+										<div class="font-normal text-gray-500 text-base leading-none">Walk to</div>
+										<div class="font-bold text-gray-700 text-base leading-tight">{{ leg.arriveAt }}</div>
+									</div>
+									<div class="flex flex-col">
+										<div class="flex-grow"></div>
+										<span class="font-normal text-gray-600 text-base">{{ leg.duration + " min" + (leg.duration == 1 ? "" : "s") }}</span>
+										<div class="flex-grow"></div>
+									</div>
 								</div>
 								<div v-if="leg.mode == 'tube'">
 									<div class="flex mb-2 md:mb-4">
@@ -99,24 +106,30 @@
 										</div>
 										<div class="flex-grow flex flex-col">
 											<div class="flex-grow"></div>
-											<span class="font-semibold text-gray-700 text-base">{{ leg.line == 'dlr' ? "DLR" : leg.line.charAt(0).toUpperCase() + leg.line.slice(1) }}</span>
+											<span class="font-bold text-gray-700 text-base">{{ leg.line == 'dlr' ? "DLR" : leg.line.charAt(0).toUpperCase() + leg.line.slice(1) }}</span>
 											<div class="flex-grow"></div>
 										</div>
 									</div>
 									<div class="flex">
-										<div class="block mr-3 rounded-full bg-white border-solid relative z-10" :class="'border-tfl-' + leg.line" style="width: 20px; height: 20px; border-width: 3px;"></div>
+										<div class="block mr-3 rounded-full bg-white border-solid relative z-10" :class="'border-tfl-' + leg.line" style="width: 20px; height: 20px; border-width: 5px;"></div>
 										<span class="flex-grow font-semibold text-gray-700 text-base leading-tight">{{ leg.leaveFrom }}</span>
 										<span class="font-normal text-gray-600 text-base">{{ leg.depart }}</span>
 									</div>
 									<div class="flex">
-										<div class="block" :class="'bg-tfl-' + leg.line" style="width: 14px; height: 65px; margin: -15px 15px -15px 3px;"></div>
+										<div class="block" :class="'bg-tfl-' + leg.line" style="width: 8px; height: 65px; margin: -15px 18px -15px 6px;"></div>
 										<span class="flex-grow font-normal text-gray-500 text-base leading-tight pt-1">{{ leg.stops.length + " stop" + (leg.stops.length == 1 ? "" : "s") }}</span>
 									</div>
 									<div class="flex">
-										<div class="block mr-3 rounded-full bg-white border-solid relative z-10" :class="'border-tfl-' + leg.line" style="width: 20px; height: 20px; border-width: 3px;"></div>
+										<div class="block mr-3 rounded-full bg-white border-solid relative z-10" :class="'border-tfl-' + leg.line" style="width: 20px; height: 20px; border-width: 5px;"></div>
 										<span class="flex-grow font-semibold text-gray-700 text-base leading-tight">{{ leg.arriveAt }}</span>
 										<span class="font-normal text-gray-600 text-base">{{ leg.arrive }}</span>
 									</div>
+									<div v-if="leg.best_exits" class="mt-1 md:mt-2 p-2 md:p-4 rounded-lg bg-purple-100 text-purple-800 font-semibold text-base leading-tight" :class="{ 'mb-1 md:mb-3': key < selectedRoute.legs.length - 1 }">
+										For a quicker exit at {{ leg.arriveAt }}, {{ leg.best_exits }}
+									</div>
+								</div>
+								<div v-if="key < selectedRoute.legs.length - 1" class="my-1 md:my-2">
+									<div class="bg-gray-400" style="width: 2px; height: 15px; margin-left: 9px;"></div>
 								</div>
 							</div>
 						</div>
@@ -247,7 +260,13 @@
 					showStationList: false,
 					routes: [],
 					showRoutesList: false,
-					selectedRoute: null
+					selectedRouteKey: null
+				},
+				computed: {
+					selectedRoute() {
+						if (this.selectedRouteKey == null) return null;
+						return this.routes[this.selectedRouteKey];
+					}
 				},
 				created() {
 					this.fetchStations();
@@ -310,7 +329,7 @@
 						this.fetchRoutes();
 					},
 					selectRoute(key) {
-						this.selectedRoute = this.routes[key];
+						this.selectedRouteKey = key;
 					},
 					fetchStations() {
 						var that = this;
@@ -353,6 +372,7 @@
 						}
 						
 						this.loading = true;
+						this.showRoutesList = false;
 						
 						var that = this;
 						fetch("https://cors-anywhere.herokuapp.com/https://34nbo9b4i1.execute-api.eu-west-2.amazonaws.com/journey?from=" + this.fromId + "&to=" + this.toId)
@@ -361,6 +381,18 @@
 							if (data.message) {
 								throw data.message;
 							}
+							
+							var routes = data;
+							
+							for (var i = 0; i < routes.length; i++) {
+								var route = routes[i];
+								for (var j = 0; j < route.legs.length; j++) {
+									var leg = route.legs[j];
+									if (leg.mode == "tube") {
+										this.fetchBestExits(i, j, leg.leaveFromId, leg.arriveAtId);
+									}
+								};
+							};
 							
 							that.routes = data;
 							that.showRoutesList = true;
@@ -373,6 +405,50 @@
 						.then(() => {
 							that.loading = false;
 						});
+					},
+					async fetchBestExits(route_key, leg_key, from, to) {
+						var from_naptan = this.stations[from].naptan;
+						var to_naptan = this.stations[to].naptan;
+						
+						var response = await fetch("https://arturs.site/apis/bestexits/example?from=" + from_naptan + "&to=" + to_naptan);
+						var data = await response.json();
+						
+						if (data.success == false) return;
+						
+						var text = "";
+						var front = middle = back = false;
+						
+						if (data.exits[0].sections.includes('front')) front = true;
+						if (data.exits[0].sections.includes('middle')) middle = true;
+						if (data.exits[0].sections.includes('back')) back = true;
+						
+						if (front && middle && back) {
+							text = "you can board any part of the train.";
+						} else if (!front && middle && back) {
+							text = "board at the middle or back of the train.";
+						} else if (front && !middle && back) {
+							text = "board at the front or back of the train.";
+						} else if (front && middle && !back) {
+							text = "board at the front or middle of the train.";
+						} else if (!front && !middle && back) {
+							text = "board at the back of the train.";
+						} else if (!front && middle && !back) {
+							text = "board at the middle of the train.";
+						} else if (front && !middle && !back) {
+							text = "board at the front of the train.";
+						} else {
+							text = "you can board any part of the train.";
+						}
+						
+						if (data.side == "left") {
+							text += " The doors will open on the left hand side of the train.";
+						} else if (data.side == "right") {
+							text += " The doors will open on the right hand side of the train.";
+						} else if (data.side == "both") {
+							text += " The doors will open on both sides of the train.";
+						}
+						
+						this.routes[route_key].legs[leg_key].best_exits = text;
 					}
 				}
 			});
