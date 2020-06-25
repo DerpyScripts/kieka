@@ -1,0 +1,27 @@
+{
+	"name": "kieka",
+	"version": "0.1.0",
+	"description": "Redesign of kieka.co.uk for my personal portfolio",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/DerpyScripts/kieka.git"
+	},
+	"scripts": {
+		"build:css": "cd tailwind/ && postcss tailwind.css -o ../public/tailwind.dist.css",
+		"dev:css": "cd tailwind/ && npx tailwindcss build tailwind.css -o ../public/tailwind.dist.css"
+	},
+	"author": "Arturs Dobrecovs",
+	"license": "UNLICENSED",
+	"bugs": {
+		"url": "https://github.com/DerpyScripts/kieka/issues"
+	},
+	"homepage": "https://github.com/DerpyScripts/kieka#readme",
+	"dependencies": {
+		"@fullhuman/postcss-purgecss": "^2.3.0",
+		"autoprefixer": "^9.8.0",
+		"cssnano": "^4.1.10",
+		"postcss-cli": "^7.1.1",
+		"tailwindcss": "^1.4.6",
+		"tailwindcss-animations": "^2.0.0"
+	}
+}

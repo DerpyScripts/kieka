@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		
+		<title>Kieka</title>
+		
+		<link rel="stylesheet" type="text/css" href="tailwind.dist.css" />
+		<link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" />
+		<link rel="stylesheet" type="text/css" href="https://api.mapbox.com/mapbox-gl-js/v1.11.0/mapbox-gl.css" />
+		
+		<style>
+			html, body {
+				font-family: "Nunito", sans-serif;
+				overscroll-behavior: none;
+			}
+			.mapboxgl-canvas:focus {
+				outline: none !important;
+			}
+		</Style>
+	</head>
+	<body>
+		<div class="overflow-hidden">
+			<div id="map" class="w-screen h-screen fixed top-0 left-0 focus:outline-none"></div>
+			<div id="app" class="flex flex-col md:block w-full h-full fixed top-0 left-0 z-10 pointer-events-none">
+				<a href="https://kieka.co.uk" target="_blank" class="pointer-events-auto text-pink-500 hover:text-pink-600 focus:text-pink-600">
+					<svg style="width: 30px;" class="hidden md:block fixed top-0 right-0 m-6 lg:m-8" viewBox="0 0 67 84" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<path d="M30 20C43.5 20 43 3 30 3C14.5 3 0 18 0 34.5C0 40.5 1.8 47.2 5 52L26 81C29 85 35 85 38 81L59 53C61 50 64.5 45 64.5 34.5C64.5 22.5 47.5 22.5 47.5 34.5C47.5 55 18 55 18 34.5C18 26.1 24 20 30 20Z" fill="currentColor"/>
+						<path fill-rule="evenodd" clip-rule="evenodd" d="M33 27C29 27 25 28.9 25 34.5C25 39.5 28.5 42.5 32.5 42.5C36.5 42.5 40 38.9 40 34.5V32L52 20C53 20.5 54 21 56.5 21C62.5 21 67 17 67 10C67 5.2 63 0 56.5 0C50.5 0 46 5 46 10C46 12.8 46.5 14.5 47.5 15.5L36 27H33ZM52 10.5C52 8 54 6 56.5 6C59 6 61 8 61 10.5C61 13 59 15 56.5 15C54 15 52 13 52 10.5Z" fill="currentColor"/>
+					</svg>						
+					<svg style="width: 120px; margin-bottom: 8px;" class="block md:hidden m-4 md:m-6" viewBox="0 0 294 84" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+						<mask id="mask1" mask-type="alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="294" height="84">
+							<rect width="294" height="84" fill="url(#pattern1)"/>
+						</mask>
+						<g mask="url(#mask1)">
+							<rect width="294" height="84" fill="currentColor"/>
+						</g>
+						<defs>
+							<pattern id="pattern1" patternContentUnits="objectBoundingBox" width="1" height="1">
+								<use xlink:href="#image1" transform="scale(0.00340136 0.0119048)"/>
+							</pattern>
+							<image id="image1" width="294" height="84" xlink:href="data:image/png;base64,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"/>
+						</defs>
+					</svg>
+				</a>
+				<div class="flex flex-col md:block h-auto max-h-full md:w-1/2 lg:w-1/3 p-4 md:p-6 lg:p-8 overflow-y-auto pointer-events-auto">
+					<div v-if="selectedRoute">
+						<div class="pointer-events-auto rounded-lg mb-2 md:mb-3 lg:mb-5 shadow-xl" :class="{ 'bg-pink-200': selectedRoute.id == 0, 'bg-purple-200': selectedRoute.id > 0 }">
+							<div class="rounded-lg bg-white p-2 md:p-4">
+								<div>
+									<a @click="selectedRoute = null" @keypress.enter="selectedRoute = null" tabindex="0" class="inline-block cursor-pointer text-lg text-gray-700 font-bold">
+										<svg class="inline-block mr-1" style="margin-top: -4px;" xmlns="http://www.w3.org/2000/svg" width="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+										Back
+									</a>
+								</div>
+								
+								<div class="flex text-md mt-2 md:mt-4">
+									<span class="flex-grow text-gray-600">From: <span class="text-gray-700 font-semibold">{{ selectedRoute.legs[0].leaveFrom }}</span></span>
+									<span class="text-gray-700 font-semibold">{{ selectedRoute.fare }}</span>
+								</div>
+								
+								<div class="flex mt-1">
+									<div v-for="(leg, leg_key) in selectedRoute.legs" :key="leg_key" class="flex-grow" :class="{ 'mr-2': leg_key < selectedRoute.legs.length - 1 }">
+										<div v-if="leg.mode == 'tube'" class="flex items-center justify-center px-2 py-1 w-full h-full rounded" :class="'bg-tfl-' + leg.line">
+											<svg class="block" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" width="20"><rect x="24" y="24" width="80" height="80" rx="40" :stroke="leg.line == 'circle' ? '#212121' : '#ffffff'" stroke-width="20"></rect><rect x="4" y="54" width="120" height="20" :fill="leg.line == 'circle' ? '#212121' : '#ffffff'"></rect></svg>
+										</div>
+										<div v-if="leg.mode == 'walking'" class="flex items-center justify-center px-2 py-1 w-full h-full rounded bg-gray-600">
+											<svg class="block" fill="white" width="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 458.667 458.667"><path d="M250.667 85.333c23.467 0 42.667-19.2 42.667-42.667C293.333 19.2 274.133 0 250.667 0S208 19.2 208 42.667s19.2 42.666 42.667 42.666zM368 245.333v-42.667c-39.467 0-73.6-21.333-92.8-52.267l-20.267-34.133C247.467 103.467 233.6 96 218.667 96c-5.333 0-10.667 1.067-16 3.2l-112 45.867v100.267h42.667v-71.467l37.333-16L112 458.667h44.8L194.133 288 240 330.667v128h42.667V297.6l-43.733-43.733 12.8-64C279.467 224 321.067 245.333 368 245.333z"/></svg>
+										</div>
+									</div>
+								</div>
+								
+								<div class="mt-2 md:mt-4 text-base font-bold text-gray-700">
+									{{ selectedRoute.frequency }}
+								</div>
+							</div>
+							<div class="py-1 px-2 md:px-4 flex" :class="{ 'text-pink-800': selectedRoute.id == 0, 'text-purple-800': selectedRoute.id > 0 }">
+								<div class="flex flex-col flex-grow py-1">
+									<div class="flex-grow"></div>
+									<span class="text-lg">{{ selectedRoute.label }}</span>
+								</div>
+								<span class="text-2xl font-bold">{{ selectedRoute.duration }}<span class="text-base font-normal ml-1">{{ selectedRoute.duration == 1 ? "min" : "mins" }}</span></span>
+							</div>
+						</div>
+						
+						<div class="pointer-events-auto rounded-lg bg-white p-2 md:p-4 mb-2 md:mb-3 lg:mb-5 shadow-xl">
+							<div v-for="(leg, key) in selectedRoute.legs" :key="key" :class="{ 'mb-2': key < selectedRoute.legs.length - 1 }">
+								<div v-if="leg.mode == 'walking'" class="flex">
+									<svg class="block text-gray-700 mr-3" fill="currentColor" width="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 458.667 458.667"><path d="M250.667 85.333c23.467 0 42.667-19.2 42.667-42.667C293.333 19.2 274.133 0 250.667 0S208 19.2 208 42.667s19.2 42.666 42.667 42.666zM368 245.333v-42.667c-39.467 0-73.6-21.333-92.8-52.267l-20.267-34.133C247.467 103.467 233.6 96 218.667 96c-5.333 0-10.667 1.067-16 3.2l-112 45.867v100.267h42.667v-71.467l37.333-16L112 458.667h44.8L194.133 288 240 330.667v128h42.667V297.6l-43.733-43.733 12.8-64C279.467 224 321.067 245.333 368 245.333z"/></svg>
+									<span class="flex-grow font-semibold text-gray-700 text-base">Walk to {{ leg.arriveAt }}</span>
+									<span class="font-normal text-gray-600 text-base">{{ leg.duration + " min" + (leg.duration == 1 ? "" : "s") }}</span>
+								</div>
+								<div v-if="leg.mode == 'tube'">
+									<div class="flex mb-2 md:mb-4">
+										<svg class="block text-gray-700 mr-3" fill="currentColor" width="20"  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 504.24 504.24"><path d="M188.12 64h128v32h-128zM156.12 256h32v32h-32zM316.12 256h32v32h-32z"/><path d="M360.376 352h51.744V64c0-35.346-28.654-64-64-64h-192c-35.346 0-64 28.654-64 64v288h51.744L62.408 487.76l27.424 16.48L104.376 480h295.488l14.544 24.24 27.424-16.48L360.376 352zM124.12 64c0-17.673 14.327-32 32-32h192c17.673 0 32 14.327 32 32v128h-256V64zm0 256v-96h256v96h-256zm218.144 64H161.976l19.2-32h141.888l19.2 32zm-218.688 64l19.2-32h218.688l19.2 32H123.576z"/></svg>
+										<div class="flex items-center justify-center p-1 rounded mr-3" :class="'bg-tfl-' + leg.line">
+											<svg class="block" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" width="20"><rect x="24" y="24" width="80" height="80" rx="40" :stroke="leg.line == 'circle' ? '#212121' : '#ffffff'" stroke-width="20"></rect><rect x="4" y="54" width="120" height="20" :fill="leg.line == 'circle' ? '#212121' : '#ffffff'"></rect></svg>
+										</div>
+										<div class="flex-grow flex flex-col">
+											<div class="flex-grow"></div>
+											<span class="font-semibold text-gray-700 text-base">{{ leg.line == 'dlr' ? "DLR" : leg.line.charAt(0).toUpperCase() + leg.line.slice(1) }}</span>
+											<div class="flex-grow"></div>
+										</div>
+									</div>
+									<div class="flex">
+										<div class="block mr-3 rounded-full bg-white border-solid relative z-10" :class="'border-tfl-' + leg.line" style="width: 20px; height: 20px; border-width: 3px;"></div>
+										<span class="flex-grow font-semibold text-gray-700 text-base leading-tight">{{ leg.leaveFrom }}</span>
+										<span class="font-normal text-gray-600 text-base">{{ leg.depart }}</span>
+									</div>
+									<div class="flex">
+										<div class="block" :class="'bg-tfl-' + leg.line" style="width: 14px; height: 65px; margin: -15px 15px -15px 3px;"></div>
+										<span class="flex-grow font-normal text-gray-500 text-base leading-tight pt-1">{{ leg.stops.length + " stop" + (leg.stops.length == 1 ? "" : "s") }}</span>
+									</div>
+									<div class="flex">
+										<div class="block mr-3 rounded-full bg-white border-solid relative z-10" :class="'border-tfl-' + leg.line" style="width: 20px; height: 20px; border-width: 3px;"></div>
+										<span class="flex-grow font-semibold text-gray-700 text-base leading-tight">{{ leg.arriveAt }}</span>
+										<span class="font-normal text-gray-600 text-base">{{ leg.arrive }}</span>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div v-else>
+						<div class="pointer-events-auto rounded-lg bg-pink-500 p-4 md:p-6 mb-2 md:mb-3 lg:mb-5 shadow-xl">
+							<div class="flex">
+								<div class="flex-grow flex flex-col align-center justify-center pr-4">
+									<label for="searchFrom" class="text-white text-sm -mb-1">From</label>
+									<input id="searchFrom" autocomplete="off" v-model="from" :class="{ 'pointer-events-none opacity-50': loading }" class="block w-full bg-transparent font-semibold text-md text-white placeholder-pink-100 p-0 mt-0 focus:outline-none" type="text" placeholder="Search station or address" />
+									<div class="w-full h-px bg-white my-2"></div>
+									<label for="searchTo" class="text-white text-sm -mb-1">To</label>
+									<input id="searchTo" autocomplete="off" v-model="to" :class="{ 'pointer-events-none opacity-50': loading }" class="block w-full bg-transparent font-semibold text-md text-white placeholder-pink-100 p-0 mt-0 focus:outline-none" type="text" value="" placeholder="Search station or address" />
+								</div>
+								<div class="flex flex-col align-center justify-center">
+									<a tabindex="0" @click="swapDirection" @keypress.enter="swapDirection" :class="{ 'pointer-events-none opacity-50': loading }" class="bg-purple-500 p-1 text-white rounded-lg cursor-pointer hover:bg-purple-600 focus:bg-purple-600 focus:outline-none">
+										<svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+											<path d="M13 25V9L8 14M17 5V22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+										</svg>
+									</a>
+								</div>
+							</div>
+						</div>
+							
+						<div v-if="loading" class="flex align-center justify-center pointer-events-auto rounded-lg bg-white px-4 py-2 md:px-6 md:py-4 mb-2 md:mb-3 lg:mb-5 shadow-xl text-gray-600">
+							<svg style="width: 30px;" class="animation-spin animation-2s animation-linear" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<rect x="2.5" y="2.5" width="95" height="95" rx="47.5" stroke="currentColor" stroke-width="5"/>
+								<path d="M47.9104 36.9048C55.9701 36.9048 55.6716 26.7857 47.9104 26.7857C38.6567 26.7857 30 35.7143 30 45.5357C30 49.1071 31.0746 53.0952 32.9851 55.9524L45.5224 73.2143C47.3134 75.5952 50.8955 75.5952 52.6866 73.2143L65.2239 56.5476C66.4179 54.7619 68.5075 51.7857 68.5075 45.5357C68.5075 38.3929 58.3582 38.3929 58.3582 45.5357C58.3582 57.7381 40.7463 57.7381 40.7463 45.5357C40.7463 40.5357 44.3284 36.9048 47.9104 36.9048Z" fill="currentColor"/>
+								<path fill-rule="evenodd" clip-rule="evenodd" d="M49.7015 41.0714C47.3134 41.0714 44.9254 42.2024 44.9254 45.5357C44.9254 48.5119 47.0149 50.2976 49.403 50.2976C51.791 50.2976 53.8806 48.1548 53.8806 45.5357V44.0476L61.0448 36.9048C61.6418 37.2024 62.2388 37.5 63.7313 37.5C67.3134 37.5 70 35.119 70 30.9524C70 28.0952 67.6119 25 63.7313 25C60.1493 25 57.4627 27.9762 57.4627 30.9524C57.4627 32.619 57.7612 33.631 58.3582 34.2262L51.4925 41.0714H49.7015ZM61.0448 31.25C61.0448 29.7619 62.2388 28.5714 63.7313 28.5714C65.2239 28.5714 66.4179 29.7619 66.4179 31.25C66.4179 32.7381 65.2239 33.9286 63.7313 33.9286C62.2388 33.9286 61.0448 32.7381 61.0448 31.25Z" fill="currentColor"/>
+							</svg>
+							<span class="flex flex-col align-center justify-center text-xl font-semibold ml-2">Loading...</span>
+						</div>
+						
+						<div v-if="showStationList">
+							<div v-for="station in filtered_stations" :key="station.id">
+								<a @click="selectStation(station.id)" @keypress.enter="selectStation(station.id)" tabindex="0" class="cursor-pointer">
+									<div class="pointer-events-auto rounded-lg overflow-hidden bg-white pt-2 md:pt-4 mb-2 md:mb-3 lg:mb-5 shadow-xl">
+										<div class="flex px-4 md:px-6">
+											<svg viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" width="24"><rect x="24" y="24" width="80" height="80" rx="40" stroke="#E32017" stroke-width="20"></rect><rect x="4" y="54" width="120" height="20" fill="#003688"></rect></svg>
+											<span class="text-lg font-semibold text-gray-800 ml-2 md:ml-4">{{ station.name }}</span>
+										</div>
+										<div class="flex mt-2 md:mt-4">
+											<div v-if="station.lines.includes('bakerloo')" class="flex-grow bg-tfl-bakerloo" style="height: 5px;"></div>
+											<div v-if="station.lines.includes('central')" class="flex-grow bg-tfl-central" style="height: 5px;"></div>
+											<div v-if="station.lines.includes('circle')" class="flex-grow bg-tfl-circle" style="height: 5px;"></div>
+											<div v-if="station.lines.includes('district')" class="flex-grow bg-tfl-district" style="height: 5px;"></div>
+											<div v-if="station.lines.includes('hammersmith-city')" class="flex-grow bg-tfl-hammersmith-city" style="height: 5px;"></div>
+											<div v-if="station.lines.includes('jubilee')" class="flex-grow bg-tfl-jubilee" style="height: 5px;"></div>
+											<div v-if="station.lines.includes('metropolitan')" class="flex-grow bg-tfl-metropolitan" style="height: 5px;"></div>
+											<div v-if="station.lines.includes('northern')" class="flex-grow bg-tfl-northern" style="height: 5px;"></div>
+											<div v-if="station.lines.includes('piccadilly')" class="flex-grow bg-tfl-piccadilly" style="height: 5px;"></div>
+											<div v-if="station.lines.includes('victoria')" class="flex-grow bg-tfl-victoria" style="height: 5px;"></div>
+											<div v-if="station.lines.includes('waterloo-city')" class="flex-grow bg-tfl-waterloo-city" style="height: 5px;"></div>
+											<div v-if="station.lines.includes('overground')" class="flex-grow bg-tfl-overground" style="height: 5px;"></div>
+											<div v-if="station.lines.includes('dlr')" class="flex-grow bg-tfl-dlr" style="height: 5px;"></div>
+										</div>
+									</div>
+								</a>
+							</div>
+						</div>
+						
+						<div v-if="showRoutesList && !showStationList">
+							<div v-for="(route, key) in routes" :key="key">
+								<a @click="selectRoute(key)" @keypress.enter="selectRoute(key)" tabindex="0" class="cursor-pointer">
+									<div class="pointer-events-auto rounded-lg overflow-hidden mb-2 md:mb-3 lg:mb-5 shadow-xl" :class="{ 'bg-pink-200': key == 0, 'bg-purple-200': key > 0 }">
+										<div class="flex rounded-lg overflow-hidden bg-white py-4 px-4">
+											<div class="flex flex-col pr-4">
+												<span class="text-md text-gray-600">Next train at:</span>
+												<span class="flex-grow text-3xl leading-none text-gray-700 font-bold pt-2">{{ route.departTime }}</span>
+											</div>
+											<div class="flex-grow flex flex-col">
+												<div class="flex text-md">
+													<span class="flex-grow text-gray-600">From: <span class="text-gray-700">{{ route.legs[0].leaveFrom }}</span></span>
+													<span class="text-gray-700 font-semibold">{{ route.fare }}</span>
+												</div>
+												<div class="flex flex-grow pt-2">
+													<div v-for="(leg, leg_key) in route.legs" :key="leg_key" class="flex-grow" :class="{ 'mr-2': leg_key < route.legs.length - 1 }">
+														<div v-if="leg.mode == 'tube'" class="flex items-center justify-center px-2 py-1 w-full h-full rounded" :class="'bg-tfl-' + leg.line">
+															<svg class="block" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" width="20"><rect x="24" y="24" width="80" height="80" rx="40" :stroke="leg.line == 'circle' ? '#212121' : '#ffffff'" stroke-width="20"></rect><rect x="4" y="54" width="120" height="20" :fill="leg.line == 'circle' ? '#212121' : '#ffffff'"></rect></svg>
+														</div>
+														<div v-if="leg.mode == 'walking'" class="flex items-center justify-center px-2 py-1 w-full h-full rounded bg-gray-600">
+															<svg class="block" fill="white" width="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 458.667 458.667"><path d="M250.667 85.333c23.467 0 42.667-19.2 42.667-42.667C293.333 19.2 274.133 0 250.667 0S208 19.2 208 42.667s19.2 42.666 42.667 42.666zM368 245.333v-42.667c-39.467 0-73.6-21.333-92.8-52.267l-20.267-34.133C247.467 103.467 233.6 96 218.667 96c-5.333 0-10.667 1.067-16 3.2l-112 45.867v100.267h42.667v-71.467l37.333-16L112 458.667h44.8L194.133 288 240 330.667v128h42.667V297.6l-43.733-43.733 12.8-64C279.467 224 321.067 245.333 368 245.333z"/></svg>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+										<div class="py-1 px-4 flex" :class="{ 'text-pink-800': key == 0, 'text-purple-800': key > 0 }">
+											<div class="flex flex-col flex-grow py-1">
+												<div class="flex-grow"></div>
+												<span class="text-lg">{{ route.label }}</span>
+											</div>
+											<span class="text-2xl font-bold">{{ route.duration }}<span class="text-base font-normal ml-1">{{ route.duration == 1 ? "min" : "mins" }}</span></span>
+										</div>
+									</div>
+								</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<script src="https://api.mapbox.com/mapbox-gl-js/v1.11.0/mapbox-gl.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+		<script>
+			mapboxgl.accessToken = 'pk.eyJ1IjoiYXJ0dXJzIiwiYSI6ImNqa2JndHA5MzB2a2gza252cWMwdTh0NDAifQ.7-3V2yrH_mgdaV3Nt9OWDA';
+			var map = new mapboxgl.Map({
+				container: 'map',
+				style: 'mapbox://styles/mapbox/light-v10',
+				center: [-0.130191, 51.505076],
+				zoom: 12
+			});
+			
+			var app = new Vue({
+				el: '#app',
+				data: {
+					loading: true,
+					error: false,
+					from: null,
+					fromId: null,
+					to: null,
+					toId: null,
+					ignoreSearchWatch: false,
+					filterDirection: null,
+					stations: {},
+					filtered_stations: [],
+					showStationList: false,
+					routes: [],
+					showRoutesList: false,
+					selectedRoute: null
+				},
+				created() {
+					this.fetchStations();
+				},
+				watch: {
+					to(next, previous) {
+						if (!this.ignoreSearchWatch) this.filterSearch("to");
+					},
+					from(next, previous) {
+						if (!this.ignoreSearchWatch) this.filterSearch("from");
+					}
+				},
+				methods: {
+					swapDirection() {
+						var to = this.to;
+						var toId = this.toId;
+						this.ignoreSearchWatch = true;
+						this.to = this.from;
+						this.from = to;
+						this.toId = this.fromId;
+						this.fromId = toId;
+						this.$nextTick(()=> {
+							this.filterDirection = null;
+							this.filtered_stations = [];
+							this.showStationList = false;
+							this.ignoreSearchWatch = false;
+						});
+						this.fetchRoutes();
+					},
+					filterSearch(direction) {
+						var query = this[direction].toLowerCase(); // either to or from
+						var that = this;
+						
+						this.filterDirection = direction;
+						this.filtered_stations = [];
+						Object.keys(this.stations).forEach(key => {
+							var station = this.stations[key];
+							if (station.name.toLowerCase().includes(query) && that.filtered_stations.length < 5) {
+								that.filtered_stations.push(station);
+							}
+						});
+						
+						this.showStationList = true;
+					},
+					selectStation(id) {
+						this.ignoreSearchWatch = true;
+						if (this.filterDirection == "to") {
+							this.to = this.stations[id].name;
+							this.toId = this.stations[id].id;
+						} else {
+							this.from = this.stations[id].name;
+							this.fromId = this.stations[id].id;
+						}
+						this.$nextTick(()=> {
+							this.filterDirection = null;
+							this.filtered_stations = [];
+							this.showStationList = false;
+							this.ignoreSearchWatch = false;
+						});
+						this.fetchRoutes();
+					},
+					selectRoute(key) {
+						this.selectedRoute = this.routes[key];
+					},
+					fetchStations() {
+						var that = this;
+						
+						if (localStorage.getItem('stationsList')) {
+							var stations = localStorage.getItem('stationsList');
+							stations = JSON.parse(stations);
+							that.stations = {};
+							stations.forEach(station => {
+								that.stations[station.id] = station;
+							});
+							that.loading = false;
+							that.showStationList = false;
+							return;
+						}
+						
+						fetch("https://cors-anywhere.herokuapp.com/https://kieka-station-data.s3.eu-west-2.amazonaws.com/stations.json")
+						.then(response => response.json())
+						.then(data => {
+							that.stations = {};
+							data.forEach(station => {
+								that.stations[station.id] = station;
+							});
+							
+							var json = JSON.stringify(data);
+							localStorage.setItem('stationsList', json);
+						})
+						.catch(err => {
+							console.log(err);
+							alert("Error");
+						})
+						.then(() => {
+							that.loading = false;
+							that.showStationList = false;
+						});
+					},
+					fetchRoutes() {
+						if (this.toId == null || this.fromId == null) {
+							return;
+						}
+						
+						this.loading = true;
+						
+						var that = this;
+						fetch("https://cors-anywhere.herokuapp.com/https://34nbo9b4i1.execute-api.eu-west-2.amazonaws.com/journey?from=" + this.fromId + "&to=" + this.toId)
+						.then(response => response.json())
+						.then(data => {
+							if (data.message) {
+								throw data.message;
+							}
+							
+							that.routes = data;
+							that.showRoutesList = true;
+						})
+						.catch(err => {
+							console.log(err);
+							that.showRoutesList = false;
+							alert(err);
+						})
+						.then(() => {
+							that.loading = false;
+						});
+					}
+				}
+			});
+		</script>
+	</body>
+</html>
